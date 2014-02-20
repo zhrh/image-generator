@@ -1,0 +1,10 @@
+*.o
+*.swp
+*~
+tags
+data/
+copydata/
+build/
+result/
+generator
+libgenerator.so

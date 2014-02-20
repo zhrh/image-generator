@@ -1,0 +1,5 @@
+使用方法:
+	./generator image_path copy_path new_image_path
+Examples:
+	./generator ../data ../copydata ../result
+	./generator /media/gxg_disk/zhourenhao/crawl_300k_surf/images /media/gxg_disk/zhourenhao/crawl_300k_surf/image_generator_origin/data /media/gxg_disk/zhourenhao/crawl_300k_surf/image_generator/data
