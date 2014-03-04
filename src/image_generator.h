@@ -20,8 +20,14 @@ public:
 	bool Init(const std::string &image_name);
 
 	void ChangeContrastBrightness(int alpha, int beta);
-	void GaussianBlur(cv::Size &ksize);
 
+	// blur
+	void GaussianBlur(cv::Size &ksize);
+	void BlockBlur(cv::Size &ksize);
+	void SaveJpegQuality(const std::string &save_name, const int jpeg_quality);
+	void SaveJpegQuality(const std::string &save_path, unsigned int nameid, const int jpeg_quality);
+
+	// noise
 	void AddGaussianNoise();
 	void AddGaussianNoiseSimple(double mean, double std);
 	void AddSaltPepperNoise(double rate);

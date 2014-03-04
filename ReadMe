@@ -3,3 +3,35 @@
 Examples:
 	./generator ../data ../copydata ../result
 	./generator /media/gxg_disk/zhourenhao/crawl_300k_surf/images /media/gxg_disk/zhourenhao/crawl_300k_surf/image_generator_origin/data /media/gxg_disk/zhourenhao/crawl_300k_surf/image_generator/data
+	./generator ../data NULL ../result/new
+	./generator /media/gxg_disk/zhourenhao/crawl_300k_surf/image_generator_origin/data NULL /media/gxg_disk/zhourenhao/crawl_300k_surf/image_generator_new/data
+	./generator /media/gxg_disk/zhourenhao/crawl_300k_surf/image_generator_origin/data NULL /media/gxg_disk/zhourenhao/crawl_300k_surf/image_generator_final/data
+
+目前使用参数：
+1. (1, 2, 3, 4) contrast control, (-70, -50, 50, 70)
+2. (5, 6, 7, 8) brightness control, (-50, -30, 30, 50)
+3. (9, 10) gaussian blur, (11, 21)
+4. (11, 12) gaussian noise, (30, 50)
+5. (13, 14) saltpepper noise, (0.05, 0.1)
+6. (15, 16) add logo, (upright, center)
+7. (17, 18) crop, (0.2, 0.5)
+
+修改后参数：
+1. (1, 2, 3, 4) contrast control, (-40, -30, 40, 30)
+2. (5, 6, 7, 8) brightness control, (-20, -10, 20, 10)
+3. (9, 10) block blur, (5, 7)
+4. (11, 12) gaussian noise, (25, 28)
+5. (13, 14) saltpepper noise, (0.01, 0.03)
+6. (15, 16) add logo, (upright, center)
+7. (17, 18) crop, (0.15, 0.18)
+8. (19, 20) jpeg quality, (10, 30)
+9. (21)	gaussian blur, (7)
+
+最终版参数：
+1. (1, 2) contrast control, (-50, 35)
+2. (3, 4) brightness control, (-25, 25)
+3. (5) jpeg quality, (20)		(substitute blur)
+4. (6) gaussian noise, (30)
+5. (7) saltpepper noise, (0.02)
+6. (8, 9) add logo, (upright, center)
+7. (10) crop, (0.15)

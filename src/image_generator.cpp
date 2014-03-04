@@ -1,5 +1,6 @@
 #include "image_generator.h"
 #include <stdio.h>
+#include <vector>
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -99,6 +100,12 @@ void ImageGenerator::GaussianBlur(cv::Size &ksize)
 	cv::GaussianBlur(image_, new_image_, ksize, 0, 0); // sigmaX=sigmaY=0, means that they are computed from ksize.  
 }
 
+void ImageGenerator::BlockBlur(cv::Size &ksize)
+{
+	new_image_ = cv::Mat::zeros(image_.size(), image_.type());
+	cv::blur(image_, new_image_, ksize, cv::Point(-1,-1));
+}
+
 // param:
 //	mean, std means the gaussian noise's mean and std
 void ImageGenerator::AddGaussianNoiseSimple(double mean, double std)
@@ -138,8 +145,9 @@ void ImageGenerator::AddGaussianNoise()
 void ImageGenerator::AddSaltPepperNoise(double rate)
 {
 	cv::Mat saltpepper_noise = cv::Mat::zeros(image_.size(), CV_8U);
-	cv::randu(saltpepper_noise, 0, 255);
+	cv::randu(saltpepper_noise, 0, 255 + 1);
 	int threshold = rate / 2 * 255;
+	//printf("threshold = %d\n",threshold);
 	cv::Mat black = saltpepper_noise < threshold;
 	cv::Mat white = saltpepper_noise > (255 -  threshold);
 	image_.copyTo(new_image_);
@@ -197,4 +205,25 @@ void ImageGenerator::SaveNewImage(const std::string &save_path, unsigned int nam
 	std::string save_name = save_path + "/" + nameid_str + ".jpg";	// 不一定使jpg时怎么处理
 	//printf("savename = %s\n",save_name.c_str());
 	cv::imwrite(save_name, new_image_);
+}
+
+void ImageGenerator::SaveJpegQuality(const std::string &save_name, const int jpeg_quality)
+{
+	image_.copyTo(new_image_);
+	std::vector<int> params;
+	params.push_back(CV_IMWRITE_JPEG_QUALITY);
+	params.push_back(jpeg_quality);
+	cv::imwrite(save_name, new_image_, params);
+}
+
+void ImageGenerator::SaveJpegQuality(const std::string &save_path, unsigned int nameid, const int jpeg_quality)
+{
+	image_.copyTo(new_image_);
+	std::vector<int> params;
+	params.push_back(CV_IMWRITE_JPEG_QUALITY);
+	params.push_back(jpeg_quality);
+	char nameid_str[11];
+	sprintf(nameid_str,"%u",nameid);	// 这里一定要使用%u代表无符号, %d代表有符号
+	std::string save_name = save_path + "/" + nameid_str + ".jpg";	// 不一定使jpg时怎么处理
+	cv::imwrite(save_name, new_image_, params);
 }

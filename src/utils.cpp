@@ -2,6 +2,7 @@
 #include <dirent.h>
 #include <fcntl.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/sendfile.h>
 #include <sys/stat.h>
@@ -70,4 +71,12 @@ bool CopyFile(const std::string &infile, const std::string &outpath, unsigned in
 	close(read_fd);
 	close(write_fd);
 	return true;
+}
+
+unsigned int GetFileId(const std::string &filepath)
+{
+	std::string::size_type slash_pos = filepath.find_last_of('/');
+	std::string::size_type dot_pos = filepath.find_last_of('.');
+	std::string id_str(filepath.substr(slash_pos + 1, dot_pos - slash_pos - 1));
+	return atoi(id_str.c_str());
 }
