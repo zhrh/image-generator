@@ -8,8 +8,8 @@ CXXFLAGS = -fPIC -Wall `pkg-config --cflags opencv` -I$(INCDIR)
 LDFLAGS = -L$(LIBDIR)
 LDLIBS = `pkg-config --libs opencv`
 
-PROG = generator
-LIB = libgenerator.so
+PROG = imgen 
+LIB = libimgen.so
 
 MAINOBJ = $(ODIR)/main.o
 LIBOBJS = $(ODIR)/image_generator.o $(ODIR)/utils.o
@@ -28,4 +28,4 @@ $(ODIR)/%.o:$(addprefix ./, %.cpp)
 .PHONY:clean
 
 clean:
-	rm $(ODIR)/*.o generator libgenerator.so
+	rm $(ODIR)/*.o imgen libimgen.so

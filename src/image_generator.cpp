@@ -15,7 +15,7 @@ ImageGenerator::~ImageGenerator()
 
 }
 
-bool ImageGenerator::Init(const std::string &image_name)
+bool ImageGenerator::InitImageName(const std::string &image_name)
 {
 	image_ = cv::imread(image_name);
 	if(image_.rows < 30 || image_.cols < 30)
@@ -23,6 +23,13 @@ bool ImageGenerator::Init(const std::string &image_name)
 		printf("Image is too small! Rows = %d, Cols = %d.\n",image_.rows,image_.cols);
 		return false;
 	}
+	return true;
+}
+
+bool ImageGenerator::InitMat(cv::Mat &frame)	// for video interface
+{
+	// image_.release();	// ??
+	frame.copyTo(image_);
 	return true;
 }
 
@@ -158,15 +165,32 @@ void ImageGenerator::AddSaltPepperNoise(double rate)
 // param
 // 	alpha, weight of the first image(beta = 1- alpha, weight of the second image)
 //	type, add
-bool ImageGenerator::AddLogo(const std::string &logoname,const double alpha, const int logo_location)
+bool ImageGenerator::AddLogoFileName(const std::string &logoname,const double alpha, const int logo_location)
 {
-	cv::Mat logo_image = cv::imread(logoname);
+	cv::Mat logo_image = cv::imread(logoname);	// 降低效率, 多次打开loggo图片
 	if(logo_image.data == NULL)
 	{
 		fprintf(stderr,"Loading logo image failed\n");
 		return false;
 	}
 	cv::resize(logo_image, logo_image, cv::Size(image_.cols / 4, image_.rows / 4), 0, 0, cv::INTER_LINEAR);
+	image_.copyTo(new_image_);
+	double beta = 1 - alpha; // weight of the second image
+	if(logo_location == kLogoUpRight)
+	{
+		cv::Mat image_roi = new_image_(cv::Rect(new_image_.cols / 8 * 5, new_image_.rows / 8, logo_image.cols, logo_image.rows));
+		cv::addWeighted(image_roi, alpha, logo_image, beta, 0.0, image_roi);
+	}
+	else if(logo_location == kLogoCenter)
+	{
+		cv::Mat image_roi = new_image_(cv::Rect(new_image_.cols / 8 * 3, new_image_.rows / 8 * 3, logo_image.cols, logo_image.rows));
+		cv::addWeighted(image_roi, alpha, logo_image, beta, 0.0, image_roi);
+	}
+	return true;
+}
+
+bool ImageGenerator::AddLogoMat(const cv::Mat &logo_image,const double alpha, const int logo_location)
+{
 	image_.copyTo(new_image_);
 	double beta = 1 - alpha; // weight of the second image
 	if(logo_location == kLogoUpRight)
