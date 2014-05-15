@@ -80,3 +80,22 @@ unsigned int GetFileId(const std::string &filepath)
 	std::string id_str(filepath.substr(slash_pos + 1, dot_pos - slash_pos - 1));
 	return atoi(id_str.c_str());
 }
+
+void GetFileName(const std::string &filepath, std::string &filename)
+{
+	std::string::size_type slash_pos = filepath.find_last_of('/');
+	std::string::size_type dot_pos = filepath.find_last_of('.');
+	filename.assign(filepath.substr(slash_pos + 1, dot_pos - slash_pos-1));
+}
+
+std::string GetRelativePath(const std::string &filepath)
+{
+	std::string::size_type pos = filepath.find_first_of('/',1); // pos = 1, to ignore the first '/'
+	return filepath.substr(pos + 1,filepath.size() - pos -1);
+}
+
+void RemovePostfix(const std::string &filepath, std::string &new_path)
+{
+	std::string::size_type dot_pos = filepath.find_last_of('.');
+	new_path.assign(filepath.substr(0, dot_pos));
+}

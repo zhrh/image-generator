@@ -1,4 +1,4 @@
-使用方法:
+1. 使用方法:
 	./generator image_path copy_path new_image_path
 Examples:
 	./generator ../data ../copydata ../result
@@ -7,6 +7,7 @@ Examples:
 	./generator /media/gxg_disk/zhourenhao/crawl_300k_surf/image_generator_origin/data NULL /media/gxg_disk/zhourenhao/crawl_300k_surf/image_generator_new/data
 	./generator /media/gxg_disk/zhourenhao/crawl_300k_surf/image_generator_origin/data NULL /media/gxg_disk/zhourenhao/crawl_300k_surf/image_generator_final/data
 
+2. 参数使用
 目前使用参数：
 1. (1, 2, 3, 4) contrast control, (-70, -50, 50, 70)
 2. (5, 6, 7, 8) brightness control, (-50, -30, 30, 50)
@@ -35,3 +36,8 @@ Examples:
 5. (7) saltpepper noise, (0.02)
 6. (8, 9) add logo, (upright, center)
 7. (10) crop, (0.15)
+
+更新记录：
+2014年5月9日
+1. 加入读取mysql数据库
+2. 为达到1亿图片，添加变换图片

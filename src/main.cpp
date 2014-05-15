@@ -1,17 +1,103 @@
+#include <errno.h>
 #include <math.h>
 #include <stdio.h>
+#include <sys/stat.h>
+#include <sys/time.h>
+#include <sys/types.h>
 #include <time.h>
 #include <algorithm>
 #include <string>
 #include <vector>
 #include <opencv2/highgui/highgui.hpp>
-#include "utils.h"
 #include "image_generator.h"
+#include "MySQL_API.h"
+#include "utils.h"
 
 
 int main(int argc, char *argv[])
 {
 
+/********************generate background images**********************/
+	CMySQL_API mysql_api("root", "root", "web_image_test");
+	if(mysql_api.Init_Database_Con("127.0.0.1", 3306) != 0)
+		return -1;
+	int seqid = 1;
+	std::string imagedir("/media/image1/");
+	//std::string savedir("/home/zrh/image_generator/result/");
+	std::string savedir("/media/gxg_disk/zhourenhao/test");
+	std::string filepath, filename, savepath[3];
+	char dirname[1024];
+	unsigned int old_id;
+
+	ImageGenerator generator;
+	float resize_ratio1 = 0.6;
+	float resize_ratio2 = 0.8;
+	int jpeg_quality = 15;
+	unsigned char md5[MD5_DIGEST_LENGTH];
+	memset(md5,0,MD5_DIGEST_LENGTH);
+	int split_dir = 100;
+
+	struct timeval start, end;
+	float database_time_use = 0;
+	float generator_time_use = 0;
+
+	while(seqid < 1000)
+	{
+		if(seqid % split_dir == 1)
+		{
+			memset(dirname, 0, 1024);
+			sprintf(dirname, "%s/%d/", savedir.c_str(), seqid + split_dir - 1);
+			if(mkdir(dirname, S_IRWXU) == -1)
+				if(errno != EEXIST)
+				{
+					perror("can't mkdir file !");
+					break;
+				}
+		}
+
+		gettimeofday(&start, NULL);
+		mysql_api.Image_Map_Table_Read_Path_Oldid(seqid, filepath, old_id);
+		gettimeofday(&end, NULL);
+		database_time_use += (1000000 * (end.tv_sec - start.tv_sec) + end.tv_usec - start.tv_usec) / 1000.0;
+
+		printf("path = %s, old_id = %d \n", filepath.c_str(), old_id);
+		filepath.assign(imagedir + filepath);
+		if(!generator.BgInit(filepath))
+		{
+			++seqid;
+			continue;
+		}
+		GetFileName(filepath, filename);
+
+		gettimeofday(&start, NULL);
+		savepath[0].assign(dirname + filename + "_1.jpg"); 
+		generator.ResizeImage(resize_ratio1);
+		generator.SaveNewImage(savepath[0]);
+
+		savepath[1].assign(dirname + filename + "_2.jpg"); 
+		generator.ResizeImage(resize_ratio2);
+		generator.SaveNewImage(savepath[1]);
+
+		savepath[2].assign(dirname + filename + "_3.jpg"); 
+		generator.SaveJpegQuality(savepath[2], jpeg_quality);
+		gettimeofday(&end, NULL);
+		generator_time_use += (1000000 * (end.tv_sec - start.tv_sec) + end.tv_usec - start.tv_usec) / 1000.0;
+
+		gettimeofday(&start, NULL);
+		mysql_api.Background_Image_Map_Insert(GetRelativePath(savepath[0]), old_id, md5);
+		mysql_api.Background_Image_Map_Insert(GetRelativePath(savepath[1]), old_id, md5);
+		mysql_api.Background_Image_Map_Insert(GetRelativePath(savepath[2]), old_id, md5);
+		gettimeofday(&end, NULL);
+		database_time_use += (1000000 * (end.tv_sec - start.tv_sec) + end.tv_usec - start.tv_usec) / 1000.0;
+		++seqid;
+	}
+	mysql_api.Release_Database_Con();
+	printf("Insert image map table using time %.3fs \n", database_time_use/ 1000.0);
+	printf("General Image using time %.3fs \n", generator_time_use / 1000.0);
+/********************************************************************/
+
+/********************generate ground true images**********************/
+/*
 	if(argc < 3)
 	{
 		fprintf(stderr,"Para Error!\n");
@@ -130,7 +216,7 @@ int main(int argc, char *argv[])
 
 		//CopyFile((*iter), argv[2], init_nameid);
 	}
-
+*/
 
 //	ImageGenerator generator;
 //	//std::string imagename("../data/lena.jpg");
@@ -163,6 +249,8 @@ int main(int argc, char *argv[])
 //	cv::imshow("Original Image",generator.image());
 //	cv::imshow("New Image", generator.new_image());
 //	cv::waitKey(0); // Wait until user press some key
+
+/**************************************************************/
 	return 0;
 }
 

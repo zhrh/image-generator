@@ -26,6 +26,18 @@ bool ImageGenerator::Init(const std::string &image_name)
 	return true;
 }
 
+// 产生背景数据的初始化
+bool ImageGenerator::BgInit(const std::string &image_name)
+{
+	image_ = cv::imread(image_name);
+	if(image_.data == NULL)
+	{
+		fprintf(stderr, "Open image %s failed\n", image_name.c_str());
+		return false;
+	}
+	return true;
+}
+
 // param
 //	alpha, contrast control, 取值[-100 100], 代表对比度增加和降低的百分率
 //	beta, brightness control, 取值[-100 100], 代表亮度增加和降低的百分率 
@@ -226,4 +238,9 @@ void ImageGenerator::SaveJpegQuality(const std::string &save_path, unsigned int 
 	sprintf(nameid_str,"%u",nameid);	// 这里一定要使用%u代表无符号, %d代表有符号
 	std::string save_name = save_path + "/" + nameid_str + ".jpg";	// 不一定使jpg时怎么处理
 	cv::imwrite(save_name, new_image_, params);
+}
+
+void ImageGenerator::ResizeImage(const float ratio)
+{
+	cv::resize(image_, new_image_, cv::Size(image_.cols*ratio, image_.rows*ratio), 0, 0, cv::INTER_LINEAR);
 }

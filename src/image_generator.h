@@ -18,6 +18,7 @@ public:
 	~ImageGenerator();
 
 	bool Init(const std::string &image_name);
+	bool BgInit(const std::string &image_name);
 
 	void ChangeContrastBrightness(int alpha, int beta);
 
@@ -34,6 +35,8 @@ public:
 
 	bool AddLogo(const std::string &logoname,const double alpha, const int logo_location);
 	void CropImage(const double rate);
+
+	void ResizeImage(const float ratio);
 
 	void SaveNewImage(const std::string &save_name);
 	void SaveNewImage(const std::string &save_path, unsigned int nameid);

@@ -6,20 +6,21 @@ ODIR = ../build
 CXX = g++
 CXXFLAGS = -fPIC -Wall `pkg-config --cflags opencv` -I$(INCDIR)
 LDFLAGS = -L$(LIBDIR)
-LDLIBS = `pkg-config --libs opencv`
+LDLIBS = -lmysqlclient `pkg-config --libs opencv`
 
 PROG = generator
 LIB = libgenerator.so
 
 MAINOBJ = $(ODIR)/main.o
+SQLOBJ = $(ODIR)/MySQL_API.o
 LIBOBJS = $(ODIR)/image_generator.o $(ODIR)/utils.o
 
 all: $(PROG) $(LIB)
 
-$(PROG):$(MAINOBJ) $(LIBOBJS)
+$(PROG):$(MAINOBJ) $(LIBOBJS) $(SQLOBJ)
 	$(CXX) -o $@ $^ $(LDFLAGS) $(LDLIBS)
 
-$(LIB):$(LIBOBJS)
+$(LIB):$(LIBOBJS) $(SQLOBJ)
 	$(CXX) $^ -o $@ -shared
 
 $(ODIR)/%.o:$(addprefix ./, %.cpp)
