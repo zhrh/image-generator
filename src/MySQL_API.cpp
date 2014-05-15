@@ -512,6 +512,90 @@ int CMySQL_API::Image_Temp_Read_ID(const std::string &image_name,unsigned int &o
 	return 0;
 }
 
+
+int CMySQL_API::Background_Image_Map_Group_Insert(const std::string *new_path,const unsigned int old_id,const unsigned char *md5,const int entry_num)
+{
+#define BACKGROUND_IMAGE_MAP_INSERT "insert into image_map(new_path,old_id,image_md5) values(?,?,?),(?,?,?),(?,?,?)"
+
+	MYSQL_STMT *stmt;
+	MYSQL_BIND bind[3 * entry_num];
+	unsigned long new_path_len[entry_num], md5_len;
+	unsigned int id;
+
+	if(!(stmt = mysql_stmt_init(&mysql)))
+	{
+		#ifdef TEST
+		printf("BACKGROUND_IMAGE_MAP_INSERT stmt initial failed...%s\n",mysql_error(&mysql));
+		#endif
+		return -1;
+	}
+	if(mysql_stmt_prepare(stmt,BACKGROUND_IMAGE_MAP_INSERT,strlen(BACKGROUND_IMAGE_MAP_INSERT)) != 0)
+	{
+		#ifdef TEST
+		printf("BACKGROUND_IMAGE_MAP_INSERT Param bind failed...%s\n",mysql_stmt_error(stmt));
+		#endif
+		return -1;
+	}
+	int param_count;
+	param_count = mysql_stmt_param_count(stmt);
+	if(param_count != 3 * entry_num)
+	{
+		#ifdef TEST
+		printf("BACKGROUND_IMAGE_MAP_INSERT Error param count\n");
+		#endif
+		return -1;
+	}
+
+	memset(bind,0,sizeof(bind));
+	for(int i = 0; i != entry_num; ++i)
+	{
+		bind[i * 3 + 0].buffer_type = MYSQL_TYPE_STRING;
+		bind[i * 3 + 0].buffer = (char *)new_path[i].c_str();
+		bind[i * 3 + 0].is_null = 0;
+		bind[i * 3 + 0].length = &new_path_len[i];
+
+		bind[i * 3 + 1].buffer_type = MYSQL_TYPE_LONG;
+		bind[i * 3 + 1].buffer = (char *)&id;
+		bind[i * 3 + 1].is_null = 0;
+		bind[i * 3 + 1].length = 0;
+		bind[i * 3 + 1].is_unsigned = 1;
+
+		bind[i * 3 + 2].buffer_type = MYSQL_TYPE_BLOB;
+		bind[i * 3 + 2].buffer = (char *)md5;
+		bind[i * 3 + 2].is_null = 0;
+		bind[i * 3 + 2].length = &md5_len;
+
+		new_path_len[i] = new_path[i].size();
+	}
+
+	mysql_stmt_bind_param(stmt,bind);
+
+	id = old_id;
+	md5_len = MD5_DIGEST_LENGTH;
+
+	mysql_real_query(&mysql,MYSQL_SETCOMMIT_OFF,strlen(MYSQL_SETCOMMIT_OFF));
+
+	if(mysql_stmt_execute(stmt))
+	{
+		#ifdef TEST
+		printf("BACKGROUND_IMAGE_MAP_INSERT Failed ...code - %d, Message - %s\n",mysql_stmt_errno(stmt),mysql_stmt_error(stmt));
+		#endif
+		mysql_rollback(&mysql);
+		mysql_real_query(&mysql,MYSQL_SETCOMMIT_ON,strlen(MYSQL_SETCOMMIT_ON));
+		mysql_stmt_close(stmt);
+		return -1;
+	}
+
+	mysql_commit(&mysql);
+	mysql_real_query(&mysql,MYSQL_SETCOMMIT_ON,strlen(MYSQL_SETCOMMIT_ON));
+	#ifdef TEST
+	printf("Data insert into image_map Success\n\n");
+	#endif
+	mysql_stmt_close(stmt);
+	return 0;
+}
+
+/*
 int CMySQL_API::Background_Image_Map_Insert(const std::string &new_path,const unsigned int old_id,const unsigned char *md5)
 {
 #define BACKGROUND_IMAGE_MAP_INSERT "insert into image_map(new_path,old_id,image_md5) values(?,?,?)"
@@ -588,6 +672,8 @@ int CMySQL_API::Background_Image_Map_Insert(const std::string &new_path,const un
 	mysql_stmt_close(stmt);
 	return 0;
 }
+*/
+
 int CMySQL_API::Image_Map_Insert(const std::string &new_path,const unsigned int old_id,const unsigned char *md5)
 {
 #define IMAGE_MAP_INSERT "insert into image_map(new_path,old_id,image_md5) values(?,?,?)"

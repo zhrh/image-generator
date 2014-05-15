@@ -25,7 +25,8 @@ public:
 	int Image_Temp_Read_ID(const std::string &image_name,unsigned int &old_id);
 	int Image_Map_Insert(const std::string &new_path,const unsigned int old_id,const unsigned char *md5);
 	int Image_Map_Table_Read_Path_Oldid(unsigned int image_seqID, std::string &image_path,unsigned int &old_id);
-	int Background_Image_Map_Insert(const std::string &new_path,const unsigned int old_id,const unsigned char *md5);
+	//int Background_Image_Map_Insert(const std::string &new_path,const unsigned int old_id,const unsigned char *md5);
+	int Background_Image_Map_Group_Insert(const std::string *new_path, const unsigned int old_id,const unsigned char *md5,const int entry_num);
 
 	int Image_Temp_Site_IsExist(const std::string &image_name,const std::string &site_new);
 	int Image_Temp_Site_Insert(const std::string &image_name,const std::string &site,const int old_id);

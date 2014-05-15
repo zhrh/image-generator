@@ -37,6 +37,16 @@ Examples:
 6. (8, 9) add logo, (upright, center)
 7. (10) crop, (0.15)
 
+优化记录：
+2014年5月15日
+1. 一条一条插入
+Insert image map table using time 87.242s 
+Generate Image using time 51.439s
+2. 多条一起插入
+Query image map table using time 0.413s 
+Insert image map table using time 26.365s 
+General Image using time 46.093s 
+
 更新记录：
 2014年3月12日
 (1)重载init,适配视频的情况.
@@ -45,3 +55,4 @@ Examples:
 2014年5月9日
 1. 加入读取mysql数据库
 2. 为达到1亿图片，添加变换图片
+

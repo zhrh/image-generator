@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
 	std::string imagedir("/media/image1/");
 	//std::string savedir("/home/zrh/image_generator/result/");
 	std::string savedir("/media/gxg_disk/zhourenhao/test");
-	std::string filepath, filename, savepath[3];
+	std::string filepath, filename, savepath[3], relative_path[3];
 	char dirname[1024];
 	unsigned int old_id;
 
@@ -38,15 +38,16 @@ int main(int argc, char *argv[])
 	int split_dir = 100;
 
 	struct timeval start, end;
-	float database_time_use = 0;
+	float query_time_use = 0;
+	float insert_time_use = 0;
 	float generator_time_use = 0;
-
+	int entry_num = 3;
 	while(seqid < 1000)
 	{
 		if(seqid % split_dir == 1)
 		{
 			memset(dirname, 0, 1024);
-			sprintf(dirname, "%s/%d/", savedir.c_str(), seqid + split_dir - 1);
+			sprintf(dirname, "%s/%d/", savedir.c_str(), (seqid + split_dir - 1) * entry_num);
 			if(mkdir(dirname, S_IRWXU) == -1)
 				if(errno != EEXIST)
 				{
@@ -58,7 +59,7 @@ int main(int argc, char *argv[])
 		gettimeofday(&start, NULL);
 		mysql_api.Image_Map_Table_Read_Path_Oldid(seqid, filepath, old_id);
 		gettimeofday(&end, NULL);
-		database_time_use += (1000000 * (end.tv_sec - start.tv_sec) + end.tv_usec - start.tv_usec) / 1000.0;
+		query_time_use += (1000000 * (end.tv_sec - start.tv_sec) + end.tv_usec - start.tv_usec) / 1000.0;
 
 		printf("path = %s, old_id = %d \n", filepath.c_str(), old_id);
 		filepath.assign(imagedir + filepath);
@@ -84,15 +85,20 @@ int main(int argc, char *argv[])
 		generator_time_use += (1000000 * (end.tv_sec - start.tv_sec) + end.tv_usec - start.tv_usec) / 1000.0;
 
 		gettimeofday(&start, NULL);
-		mysql_api.Background_Image_Map_Insert(GetRelativePath(savepath[0]), old_id, md5);
-		mysql_api.Background_Image_Map_Insert(GetRelativePath(savepath[1]), old_id, md5);
-		mysql_api.Background_Image_Map_Insert(GetRelativePath(savepath[2]), old_id, md5);
+		for(int i = 0; i != entry_num; ++i)
+			relative_path[i].assign(GetRelativePath(savepath[i]));
+	//	mysql_api.Background_Image_Map_Insert(GetRelativePath(savepath[0]), old_id, md5);
+	//	mysql_api.Background_Image_Map_Insert(GetRelativePath(savepath[1]), old_id, md5);
+	//	mysql_api.Background_Image_Map_Insert(GetRelativePath(savepath[2]), old_id, md5);
+		mysql_api.Background_Image_Map_Group_Insert(relative_path, old_id, md5, entry_num);
+		
 		gettimeofday(&end, NULL);
-		database_time_use += (1000000 * (end.tv_sec - start.tv_sec) + end.tv_usec - start.tv_usec) / 1000.0;
+		insert_time_use += (1000000 * (end.tv_sec - start.tv_sec) + end.tv_usec - start.tv_usec) / 1000.0;
 		++seqid;
 	}
 	mysql_api.Release_Database_Con();
-	printf("Insert image map table using time %.3fs \n", database_time_use/ 1000.0);
+	printf("Query image map table using time %.3fs \n", query_time_use/ 1000.0);
+	printf("Insert image map table using time %.3fs \n", insert_time_use/ 1000.0);
 	printf("General Image using time %.3fs \n", generator_time_use / 1000.0);
 /********************************************************************/
 
