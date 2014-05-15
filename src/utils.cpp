@@ -8,6 +8,9 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <opencv2/core/core.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/highgui/highgui.hpp>
 
 bool ReadFilePath(const char *filedir,std::vector<std::string> &filepath)
 {
@@ -44,7 +47,7 @@ bool ReadFilePath(const char *filedir,std::vector<std::string> &filepath)
             //|| !strcmp(sub + 1,"bmp") || !strcmp(sub + 1,"BMP") || !strcmp(sub + 1,"PNG") || !strcmp(sub + 1,"png") 
             //|| !strcmp(sub + 1,"pgm") || !strcmp(sub + 1,"ppm") || !strcmp(sub + 1,"TIF") || !strcmp(sub + 1,"tif") 
             //|| !strcmp(sub + 1,"tiff") || !strcmp(sub + 1,"TIF")) 
-			if (!strcmp(sub + 1,"jpg") || !strcmp(sub + 1,"JPG") || !strcmp(sub + 1,"jpeg") || !strcmp(sub + 1,"JPEG"))
+			if (!strcmp(sub + 1,"flv") || !strcmp(sub + 1,"jpg") || !strcmp(sub + 1,"JPG") || !strcmp(sub + 1,"jpeg") || !strcmp(sub + 1,"JPEG"))
 			{
 				std::string path(tmp_path);
 				filepath.push_back(path);
@@ -55,11 +58,11 @@ bool ReadFilePath(const char *filedir,std::vector<std::string> &filepath)
 	return true;
 }
 
-bool CopyFile(const std::string &infile, const std::string &outpath, unsigned int nameid)
+bool CopyFile(const std::string &infile, const std::string &outpath, unsigned int nameid, const std::string &postfix)
 {
 	char nameid_str[11];
 	sprintf(nameid_str,"%u",nameid);	// 这里一定要使用%u代表无符号, %d代表有符号
-	std::string outfile = outpath + "/" + nameid_str + ".jpg";	// 不一定使jpg时怎么处理
+	std::string outfile = outpath + "/" + nameid_str + postfix;	// 不一定使jpg时怎么处理
 
 	int read_fd, write_fd;
 	struct stat stat_buf;
@@ -72,7 +75,6 @@ bool CopyFile(const std::string &infile, const std::string &outpath, unsigned in
 	close(write_fd);
 	return true;
 }
-
 unsigned int GetFileId(const std::string &filepath)
 {
 	std::string::size_type slash_pos = filepath.find_last_of('/');
@@ -98,4 +100,16 @@ void RemovePostfix(const std::string &filepath, std::string &new_path)
 {
 	std::string::size_type dot_pos = filepath.find_last_of('.');
 	new_path.assign(filepath.substr(0, dot_pos));
+}
+
+bool ResizeImage(std::string &filepath, cv::Size dst_size, cv::Mat &dst_image)
+{
+	dst_image = cv::imread(filepath);
+	if(dst_image.data == NULL)
+	{
+		fprintf(stderr,"Loading logo image failed\n");
+		return false;
+	}
+	cv::resize(dst_image, dst_image, dst_size, 0, 0, cv::INTER_LINEAR);
+	return true;
 }

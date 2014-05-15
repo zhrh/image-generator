@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
 	for(std::vector<std::string>::const_iterator iter = filepath.begin(); i != kMaxTestImageNum && iter != filepath.end(); ++iter)
 	{
 		printf("Process file %s ...\n",(*iter).c_str());
-		if(!generator.Init(*iter))
+		if(!generator.InitImageName(*iter))
 			continue;
 		//init_nameid += 1;
 		init_nameid = GetFileId(*iter);
@@ -202,9 +202,9 @@ int main(int argc, char *argv[])
 
 		double logo_alpha = 0;
 		std::string logoname("../data/lena.jpg");
-		generator.AddLogo(logoname, logo_alpha, kLogoUpRight);
+		generator.AddLogoFileName(logoname, logo_alpha, kLogoUpRight);
 		generator.SaveNewImage(savepath, init_nameid + 8 * step);
-		generator.AddLogo(logoname, logo_alpha, kLogoCenter);
+		generator.AddLogoFileName(logoname, logo_alpha, kLogoCenter);
 		generator.SaveNewImage(savepath, init_nameid + 9 * step);
 
 		double crop_rate = 0.15;	// 0.2, 0.5
@@ -214,7 +214,7 @@ int main(int argc, char *argv[])
 	//	generator.CropImage(crop_rate);
 	//	generator.SaveNewImage(savepath, init_nameid + 18 * step);
 
-		//CopyFile((*iter), argv[2], init_nameid);
+		//CopyFile((*iter), argv[2], init_nameid, ".jpg");
 	}
 */
 

@@ -1,11 +1,11 @@
 1. 使用方法:
 	./generator image_path copy_path new_image_path
 Examples:
-	./generator ../data ../copydata ../result
-	./generator /media/gxg_disk/zhourenhao/crawl_300k_surf/images /media/gxg_disk/zhourenhao/crawl_300k_surf/image_generator_origin/data /media/gxg_disk/zhourenhao/crawl_300k_surf/image_generator/data
-	./generator ../data NULL ../result/new
-	./generator /media/gxg_disk/zhourenhao/crawl_300k_surf/image_generator_origin/data NULL /media/gxg_disk/zhourenhao/crawl_300k_surf/image_generator_new/data
-	./generator /media/gxg_disk/zhourenhao/crawl_300k_surf/image_generator_origin/data NULL /media/gxg_disk/zhourenhao/crawl_300k_surf/image_generator_final/data
+	./imgen ../data ../copydata ../result
+	./imgen /media/gxg_disk/zhourenhao/crawl_300k_surf/images /media/gxg_disk/zhourenhao/crawl_300k_surf/image_generator_origin/data /media/gxg_disk/zhourenhao/crawl_300k_surf/image_generator/data
+	./imgen ../data NULL ../result/new
+	./imgen /media/gxg_disk/zhourenhao/crawl_300k_surf/image_generator_origin/data NULL /media/gxg_disk/zhourenhao/crawl_300k_surf/image_generator_new/data
+	./imgen /media/gxg_disk/zhourenhao/crawl_300k_surf/image_generator_origin/data NULL /media/gxg_disk/zhourenhao/crawl_300k_surf/image_generator_final/data
 
 2. 参数使用
 目前使用参数：
@@ -38,6 +38,10 @@ Examples:
 7. (10) crop, (0.15)
 
 更新记录：
+2014年3月12日
+(1)重载init,适配视频的情况.
+(2)一个视频所有帧的图片大小相同,所以为防止重复打开和resize logo图片,增加以Mat参数传入的AddLogoMat
+
 2014年5月9日
 1. 加入读取mysql数据库
 2. 为达到1亿图片，添加变换图片

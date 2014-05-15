@@ -17,8 +17,9 @@ public:
 	ImageGenerator();
 	~ImageGenerator();
 
-	bool Init(const std::string &image_name);
 	bool BgInit(const std::string &image_name);
+	bool InitImageName(const std::string &image_name);
+	bool InitMat(cv::Mat &frame);	// for video interface
 
 	void ChangeContrastBrightness(int alpha, int beta);
 
@@ -33,7 +34,8 @@ public:
 	void AddGaussianNoiseSimple(double mean, double std);
 	void AddSaltPepperNoise(double rate);
 
-	bool AddLogo(const std::string &logoname,const double alpha, const int logo_location);
+	bool AddLogoFileName(const std::string &logoname,const double alpha, const int logo_location);
+	bool AddLogoMat(const cv::Mat &logo_image,const double alpha, const int logo_location);
 	void CropImage(const double rate);
 
 	void ResizeImage(const float ratio);

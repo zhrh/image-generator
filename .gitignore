@@ -6,5 +6,5 @@ data/
 copydata/
 build/
 result/
-generator
-libgenerator.so
+imgen
+libimgen.so
