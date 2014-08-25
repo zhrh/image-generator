@@ -19,11 +19,13 @@ public:
 	int ErrorHandle();
 
 	/************************** 图片表操作接口**************************************/
+	int Image_Random_Insert(unsigned int image_id);
 	int Image_Temp_Insert(const std::string &image_name,const int old_id);
 	int Image_Temp_IsExist(const std::string &image_name);
 	int Image_Temp_Upadte_Id(const std::string &image_name,const int old_id);
 	int Image_Temp_Read_ID(const std::string &image_name,unsigned int &old_id);
 	int Image_Map_Insert(const std::string &new_path,const unsigned int old_id,const unsigned char *md5);
+	int Image_Map_Table_Read_Path(unsigned int image_seqID, std::string &image_path);
 	int Image_Map_Table_Read_Path_Oldid(unsigned int image_seqID, std::string &image_path,unsigned int &old_id);
 	//int Background_Image_Map_Insert(const std::string &new_path,const unsigned int old_id,const unsigned char *md5);
 	int Background_Image_Map_Group_Insert(const std::string *new_path, const unsigned int old_id,const unsigned char *md5,const int entry_num);

@@ -263,6 +263,72 @@ int CMySQL_API::Image_Temp_IsExist(const std::string &image_name)
 	}
 }
 
+int CMySQL_API::Image_Random_Insert(unsigned int image_id)
+{
+#define IMAGE_RANDOM_INSERT "insert into image_random(image_id) values(?)"
+	//printf("image_id = %d\n",image_id);
+
+	MYSQL_STMT *stmt;
+	MYSQL_BIND bind[1];
+	unsigned int id;
+
+	if(!(stmt = mysql_stmt_init(&mysql)))
+	{
+		#ifdef TEST
+		printf("IMAGE_RANDOM_INSERT stmt initial failed...%s\n",mysql_error(&mysql));
+		#endif
+		return -1;
+	}
+	if(mysql_stmt_prepare(stmt,IMAGE_RANDOM_INSERT,strlen(IMAGE_RANDOM_INSERT)) != 0)
+	{
+		#ifdef TEST
+		printf("IMAGE_RANDOM_INSERT Param bind failed...%s\n",mysql_stmt_error(stmt));
+		#endif
+		return -1;
+	}
+	int param_count;
+	param_count = mysql_stmt_param_count(stmt);
+	if(param_count != 1)
+	{
+		#ifdef TEST
+		printf("IMAGE_RANDOM_INSERT Error param count\n");
+		#endif
+		return -1;
+	}
+	memset(bind,0,sizeof(bind));
+
+	bind[0].buffer_type = MYSQL_TYPE_LONG;
+	bind[0].buffer = (char *)&id;
+	bind[0].is_null = 0;
+	bind[0].length = 0;
+	bind[0].is_unsigned = 1;
+
+	mysql_stmt_bind_param(stmt,bind);
+
+	id = image_id;
+
+	mysql_real_query(&mysql,MYSQL_SETCOMMIT_OFF,strlen(MYSQL_SETCOMMIT_OFF));
+
+	if(mysql_stmt_execute(stmt))
+	{
+		#ifdef TEST
+		printf("IMAGE_RANDOM_INSERT Failed ...code - %d, Message - %s\n",mysql_stmt_errno(stmt),mysql_stmt_error(stmt));
+		#endif
+		mysql_rollback(&mysql);
+		mysql_real_query(&mysql,MYSQL_SETCOMMIT_ON,strlen(MYSQL_SETCOMMIT_ON));
+		mysql_stmt_close(stmt);
+		return -1;
+	}
+
+	mysql_commit(&mysql);
+	mysql_real_query(&mysql,MYSQL_SETCOMMIT_ON,strlen(MYSQL_SETCOMMIT_ON));
+	#ifdef TEST
+	printf("Data insert into image_map Success\n\n");
+	#endif
+	mysql_stmt_close(stmt);
+	return 0;
+}
+
 int CMySQL_API::Image_Temp_Insert(const std::string &image_name,const int old_id)
 {
 #define IMAGE_TEMP_INSERT "insert into image_temp(image_name,old_id) values(?,?)"
@@ -337,26 +403,24 @@ int CMySQL_API::Image_Temp_Insert(const std::string &image_name,const int old_id
 
 int CMySQL_API::Image_Temp_Upadte_Id(const std::string &image_name,const int old_id)
 {
-#define IMAGE_TEMP_SITE_UPDATE_ID "update image_temp set old_id =? where image_name =?"
+#define IMAGE_TEMP_UPDATE_ID "update image_temp set old_id =? where image_name =?"
 
 	MYSQL_STMT *stmt;
 	MYSQL_BIND bind[2];
 	unsigned long image_name_len;
 	unsigned int id;
 
-	int taskID,subID;
-
 	if(!(stmt = mysql_stmt_init(&mysql)))
 	{
 		#ifdef TEST
-		printf("IMAGE_TEMP_SITE_UPDATE_ID stmt initial failed...%s\n",mysql_error(&mysql));
+		printf("IMAGE_TEMP_UPDATE_ID stmt initial failed...%s\n",mysql_error(&mysql));
 		#endif
 		return -1;
 	}
-	if(mysql_stmt_prepare(stmt,IMAGE_TEMP_SITE_UPDATE_ID,strlen(IMAGE_TEMP_SITE_UPDATE_ID))!=0)
+	if(mysql_stmt_prepare(stmt,IMAGE_TEMP_UPDATE_ID,strlen(IMAGE_TEMP_UPDATE_ID))!=0)
 	{
 		#ifdef TEST
-		printf("IMAGE_TEMP_SITE_UPDATE_ID Param bind Failed...:%s",mysql_stmt_error(stmt));
+		printf("IMAGE_TEMP_UPDATE_ID Param bind Failed...:%s",mysql_stmt_error(stmt));
 		#endif
 		mysql_stmt_close(stmt);
 		return -1;
@@ -396,7 +460,7 @@ int CMySQL_API::Image_Temp_Upadte_Id(const std::string &image_name,const int old
 	if (mysql_stmt_execute(stmt))
 	{
 		#ifdef TEST
-		printf(" IMAGE_TEMP_SITE_UPDATE_ID failed:%s\n", mysql_stmt_error(stmt));
+		printf(" IMAGE_TEMP_UPDATE_ID failed:%s\n", mysql_stmt_error(stmt));
 		#endif
 		mysql_rollback(&mysql);
 		mysql_real_query(&mysql,MYSQL_SETCOMMIT_ON,strlen(MYSQL_SETCOMMIT_ON));
@@ -752,6 +816,117 @@ int CMySQL_API::Image_Map_Insert(const std::string &new_path,const unsigned int 
 	return 0;
 }
 
+int CMySQL_API::Image_Map_Table_Read_Path(unsigned int image_seqID, std::string &image_path)
+{
+#define IMAGE_MAP_TABLE_READ_PATH "select new_path from image_map where image_seqid=?"
+
+	MYSQL_STMT *stmt;
+	MYSQL_BIND bind_param[1];
+	unsigned int seqid;
+
+	if(!(stmt = mysql_stmt_init(&mysql)))
+	{
+		#ifdef TEST
+		printf("IMAGE_MAP_TABLE_READ_PATH mysql_stmt_init failed...%s\n",mysql_error(&mysql));
+		#endif
+		return -1;
+	}
+	if(mysql_stmt_prepare(stmt,IMAGE_MAP_TABLE_READ_PATH,strlen(IMAGE_MAP_TABLE_READ_PATH)) != 0)
+	{
+		#ifdef TEST
+		printf("IMAGE_MAP_TABLE_READ_PATH Param bind Failed...:%s \n",mysql_stmt_error(stmt));
+		#endif
+		mysql_stmt_close(stmt);
+		return -1;
+	}
+	int param_count = mysql_stmt_param_count(stmt);
+	if (param_count!= 1)
+	{
+		#ifdef TEST
+		printf("IMAGE_MAP_TABLE_READ_PATH Error param bind..: %s",mysql_stmt_error(stmt));
+		#endif
+		mysql_stmt_close(stmt);
+		return -1;
+	}
+	memset(bind_param,0,sizeof(bind_param));
+	bind_param[0].buffer_type = MYSQL_TYPE_LONG;
+	bind_param[0].buffer = (char*)&seqid;
+	bind_param[0].is_null = 0;
+	bind_param[0].length = 0;
+	bind_param[0].is_unsigned = 1;
+	
+	mysql_stmt_bind_param(stmt,bind_param);
+
+	seqid = image_seqID;
+	if (mysql_stmt_execute(stmt))
+	{
+		#ifdef TEST
+		printf("IMAGE_MAP_TABLE_READ_PATH failed:%s\n", mysql_stmt_error(stmt));
+		#endif
+		mysql_stmt_close(stmt);
+		return -1;
+	}
+
+	MYSQL_BIND bind_result[1];
+	char *path = (char *)calloc(1024,sizeof(char));
+	unsigned long length,path_length;
+	my_bool my_is_null,p_is_null;
+	
+	memset(bind_result,0,sizeof(bind_result));
+	//mysql_query(&mysql,"set names 'utf8'");
+	bind_result[0].buffer_type= MYSQL_TYPE_VAR_STRING;
+	bind_result[0].buffer= (char *)path;
+	bind_result[0].buffer_length = 1024;
+	bind_result[0].is_null= &p_is_null;
+	bind_result[0].length= &path_length;
+
+	if(mysql_stmt_bind_result(stmt,bind_result))
+	{
+		#ifdef TEST
+		printf("IMAGE_MAP_TABLE_READ_PATH failed: %s\n", mysql_stmt_error(stmt));
+		#endif
+		mysql_stmt_close(stmt);
+		return -1;
+	}
+
+	if(mysql_stmt_store_result(stmt))
+	{
+		#ifdef TEST
+		printf("IMAGE_MAP_TABLE_READ_PATH failed:%s\n", mysql_stmt_error(stmt));
+		#endif
+		mysql_stmt_close(stmt);
+		return -1;
+	}
+	my_ulonglong affected_rows = mysql_stmt_num_rows(stmt);
+	if (affected_rows==0)
+	{
+		#ifdef TEST
+		printf("No Fit Result\n");
+		#endif
+		mysql_stmt_close(stmt);
+		return -2;
+	}
+	mysql_stmt_fetch(stmt);
+	//int i;
+	//for(i = 0;i != length;++i)
+	//	printf("%02x",md5[i]);
+	//printf("\n");
+	//printf("path_length = %d,path = %s\n",path_length,path);
+	if(image_seqID <= 23134315)
+	{
+		 image_path.assign("/media/image1/");
+		 image_path.append(path);
+	}
+	else
+	{
+		 image_path.assign("/media/");
+		 image_path.append(path);
+	}
+	free(path);
+	mysql_stmt_close(stmt);
+	return 0;
+}
+
 int CMySQL_API::Image_Map_Table_Read_Path_Oldid(unsigned int image_seqID, std::string &image_path,unsigned int &old_id)
 {
 #define IMAGE_MAP_TABLE_READ "select new_path,old_id from image_map where image_seqid=?"
@@ -857,6 +1032,7 @@ int CMySQL_API::Image_Map_Table_Read_Path_Oldid(unsigned int image_seqID, std::s
 	image_path.assign(path);
 	free(path);
 	mysql_stmt_close(stmt);
+	return 0;
 }
 
 

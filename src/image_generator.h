@@ -28,6 +28,7 @@ public:
 	void BlockBlur(cv::Size &ksize);
 	void SaveJpegQuality(const std::string &save_name, const int jpeg_quality);
 	void SaveJpegQuality(const std::string &save_path, unsigned int nameid, const int jpeg_quality);
+	void SaveJpegQuality(const std::string &save_path, int type, unsigned int nameid, const int jpeg_quality);
 
 	// noise
 	void AddGaussianNoise();
@@ -42,6 +43,7 @@ public:
 
 	void SaveNewImage(const std::string &save_name);
 	void SaveNewImage(const std::string &save_path, unsigned int nameid);
+	void SaveNewImage(const std::string &save_path, int type, unsigned int nameid);
 	const cv::Mat &new_image() const { return new_image_; }
 	const cv::Mat &image() const { return image_; }
 

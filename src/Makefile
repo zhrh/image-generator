@@ -3,7 +3,7 @@ LIBDIR = ../lib
 
 ODIR = ../build
 
-CXX = g++
+CXX = g++ -O3
 CXXFLAGS = -fPIC -Wall `pkg-config --cflags opencv` -I$(INCDIR)
 LDFLAGS = -L$(LIBDIR)
 LDLIBS = -lmysqlclient `pkg-config --libs opencv`

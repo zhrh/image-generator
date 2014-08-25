@@ -243,12 +243,39 @@ void ImageGenerator::SaveNewImage(const std::string &save_path, unsigned int nam
 	cv::imwrite(save_name, new_image_);
 }
 
+void ImageGenerator::SaveNewImage(const std::string &save_path, int type, unsigned int nameid)
+{
+	//sprintf(const_cast<char *>(save_name.c_str()), "%s/%d.jpg", save_path.c_str(), nameid);
+	char nameid_str[11];
+	sprintf(nameid_str,"%u",nameid);	// 这里一定要使用%u代表无符号, %d代表有符号
+	char type_str[11];
+	sprintf(type_str,"%d",type);	// 这里一定要使用%u代表无符号, %d代表有符号
+	std::string save_name = save_path + "/" + type_str + "/" + nameid_str + ".jpg";	// 不一定使jpg时怎么处理
+	//printf("savename = %s\n",save_name.c_str());
+	cv::imwrite(save_name, new_image_);
+}
+
 void ImageGenerator::SaveJpegQuality(const std::string &save_name, const int jpeg_quality)
 {
 	image_.copyTo(new_image_);
 	std::vector<int> params;
 	params.push_back(CV_IMWRITE_JPEG_QUALITY);
 	params.push_back(jpeg_quality);
+	cv::imwrite(save_name, new_image_, params);
+}
+
+
+void ImageGenerator::SaveJpegQuality(const std::string &save_path, int type, unsigned int nameid, const int jpeg_quality)
+{
+	image_.copyTo(new_image_);
+	std::vector<int> params;
+	params.push_back(CV_IMWRITE_JPEG_QUALITY);
+	params.push_back(jpeg_quality);
+	char nameid_str[11];
+	sprintf(nameid_str,"%u",nameid);	// 这里一定要使用%u代表无符号, %d代表有符号
+	char type_str[11];
+	sprintf(type_str,"%u",type);	// 这里一定要使用%u代表无符号, %d代表有符号
+	std::string save_name = save_path + "/" + type_str + "/" + nameid_str + ".jpg";	// 不一定使jpg时怎么处理
 	cv::imwrite(save_name, new_image_, params);
 }
 

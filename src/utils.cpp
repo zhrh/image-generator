@@ -67,10 +67,22 @@ bool CopyFile(const std::string &infile, const std::string &outpath, unsigned in
 	int read_fd, write_fd;
 	struct stat stat_buf;
 	off_t offset = 0;
-	read_fd = open(infile.c_str(), O_RDONLY);
+	if((read_fd = open(infile.c_str(), O_RDONLY)) < 0)
+	{
+		 perror("open");
+		 return false;
+	}
 	fstat(read_fd, &stat_buf);
-	write_fd = open(outfile.c_str(), O_WRONLY | O_CREAT, stat_buf.st_mode);
-	sendfile(write_fd, read_fd, &offset, stat_buf.st_size);
+	if((write_fd = open(outfile.c_str(), O_WRONLY | O_CREAT, stat_buf.st_mode)) < 0)
+	{
+		 perror("open");
+		 return false;
+	}
+	if(sendfile(write_fd, read_fd, &offset, stat_buf.st_size) < 0)
+	{
+		 perror("sendfile");
+		 return false;
+	}
 	close(read_fd);
 	close(write_fd);
 	return true;

@@ -56,3 +56,6 @@ General Image using time 46.093s
 1. 加入读取mysql数据库
 2. 为达到1亿图片，添加变换图片
 
+2014年7月16日
+1. 加入生成1亿图片的ground true
+

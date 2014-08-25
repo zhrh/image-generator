@@ -18,6 +18,7 @@ int main(int argc, char *argv[])
 {
 
 /********************generate background images**********************/
+	/*
 	CMySQL_API mysql_api("root", "root", "web_image_test");
 	if(mysql_api.Init_Database_Con("127.0.0.1", 3306) != 0)
 		return -1;
@@ -100,16 +101,64 @@ int main(int argc, char *argv[])
 	printf("Query image map table using time %.3fs \n", query_time_use/ 1000.0);
 	printf("Insert image map table using time %.3fs \n", insert_time_use/ 1000.0);
 	printf("General Image using time %.3fs \n", generator_time_use / 1000.0);
+	*/
+/********************************************************************/
+/******************** 100m images ground true************************/
+/*
+	if(argc < 1)
+	{
+		fprintf(stderr,"Para Error!\n");
+		fprintf(stderr,"Use: 1.copy path \n"); 
+	}
+	
+	struct timeval start, end;
+	float time_use;
+	gettimeofday(&start, NULL);
+	srand(100000);
+	//srand((unsigned int)time(NULL));
+	std::vector<unsigned int> image_id;
+	const int kImageIdStart = 1, kImageIdEnd = 29145268;
+	for(int i = kImageIdStart; i != kImageIdEnd; ++i)
+	{
+		 image_id.push_back(i);
+	}
+	random_shuffle(image_id.begin(), image_id.end());
+	const int kMaxRandomNum = 100000;
+	image_id.erase(image_id.begin() + kMaxRandomNum, image_id.end());
+
+	CMySQL_API mysql_api("root", "root", "web_image");
+	if(mysql_api.Init_Database_Con("127.0.0.1", 3306) != 0)
+		return -1;
+	for(std::vector<unsigned int>::iterator iter = image_id.begin(); iter != image_id.end(); ++iter)
+	{
+		 std::string image_path;
+		 mysql_api.Image_Map_Table_Read_Path(*iter, image_path);
+		 printf("id = %d, path = %s\n", *iter, image_path.c_str());
+		 //CopyFile(image_path.c_str(), argv[1], *iter, ".jpg");
+		 if(CopyFile(image_path.c_str(), argv[1], *iter, ".jpg"))
+			  mysql_api.Image_Random_Insert(*iter);
+	}
+	mysql_api.Release_Database_Con();
+	gettimeofday(&end, NULL);
+	time_use += (1000000 * (end.tv_sec - start.tv_sec) + end.tv_usec - start.tv_usec) / 1000.0;
+	printf("Using time %.3fs \n", time_use/ 1000.0);
+*/
+
 /********************************************************************/
 
 /********************generate ground true images**********************/
-/*
+
 	if(argc < 3)
 	{
 		fprintf(stderr,"Para Error!\n");
 		fprintf(stderr,"Use: 1.image path 2.copy path 2.new image path\n"); 
 		return -1;
 	}	
+
+	struct timeval start, end;
+	float time_use;
+	gettimeofday(&start, NULL);
+
 	srand((unsigned)time(NULL));
 	cv::theRNG().state = time(NULL);
 	std::vector<std::string> filepath;
@@ -123,13 +172,16 @@ int main(int argc, char *argv[])
 	printf("%d featurs file find\n",filepath.size());
 	//printf("randomizing image list...\n");
 	//random_shuffle(filepath.begin(),filepath.end());
+	//
+	//const int kHaveGeneratedNum = 29300;
+	//filepath.erase(filepath.begin(), filepath.begin() + kHaveGeneratedNum);
 	
 	std::string savepath(argv[3]);
 	unsigned int init_nameid = 0;
 	unsigned int step = 100000000;
 
 	ImageGenerator generator;
-	const int kMaxTestImageNum = 1000;
+	const int kMaxTestImageNum = 100000;
 	int i = 0;
 	for(std::vector<std::string>::const_iterator iter = filepath.begin(); i != kMaxTestImageNum && iter != filepath.end(); ++iter)
 	{
@@ -144,7 +196,7 @@ int main(int argc, char *argv[])
 		int alpha = -50; // contrast control, -70, -50, 50, 70
 		int beta = 0; // brightness control, -50, -30, 30, 50
 		generator.ChangeContrastBrightness(alpha, beta);
-		generator.SaveNewImage(savepath, init_nameid + step);
+		generator.SaveNewImage(savepath, 11, init_nameid + 11 * step);
 	//	alpha = -30;
 	//	beta = 0;
 	//	generator.ChangeContrastBrightness(alpha, beta);
@@ -152,7 +204,7 @@ int main(int argc, char *argv[])
 		alpha = 35;
 		beta = 0;
 		generator.ChangeContrastBrightness(alpha, beta);
-		generator.SaveNewImage(savepath, init_nameid + 2 * step);
+		generator.SaveNewImage(savepath, 12, init_nameid + 12 * step);
 	//	alpha = 40;
 	//	beta = 0;
 	//	generator.ChangeContrastBrightness(alpha, beta);
@@ -160,7 +212,7 @@ int main(int argc, char *argv[])
 		alpha = 0;
 		beta = -25;
 		generator.ChangeContrastBrightness(alpha, beta);
-		generator.SaveNewImage(savepath, init_nameid + 3 * step);
+		generator.SaveNewImage(savepath, 13, init_nameid + 13 * step);
 	//	alpha = 0;
 	//	beta = -10;
 	//	generator.ChangeContrastBrightness(alpha, beta);
@@ -168,7 +220,7 @@ int main(int argc, char *argv[])
 		alpha = 0;
 		beta = 25;
 		generator.ChangeContrastBrightness(alpha, beta);
-		generator.SaveNewImage(savepath, init_nameid + 4 * step);
+		generator.SaveNewImage(savepath, 14, init_nameid + 14 * step);
 	//	alpha = 0;
 	//	beta = 20;
 	//	generator.ChangeContrastBrightness(alpha, beta);
@@ -189,19 +241,19 @@ int main(int argc, char *argv[])
 	//	generator.SaveNewImage(savepath, init_nameid + 10 * step);
 
 		int jpeg_quality = 20;
-		generator.SaveJpegQuality(savepath, init_nameid + 5 * step, jpeg_quality);
+		generator.SaveJpegQuality(savepath, 15, init_nameid + 15 * step, jpeg_quality);
 	//	jpeg_quality = 10;
 	//	generator.SaveJpegQuality(savepath, init_nameid + 20 * step, jpeg_quality);
 
 		double mean = 0, std = 30; // 30, 50
 		generator.AddGaussianNoiseSimple(mean,std);
-		generator.SaveNewImage(savepath, init_nameid + 6 * step);
+		generator.SaveNewImage(savepath, 16, init_nameid + 16 * step);
 	//	mean = 0, std = 28;
 	//	generator.AddGaussianNoiseSimple(mean,std);
 	//	generator.SaveNewImage(savepath, init_nameid + 12 * step);
-		double noise_rate = 0.02;	// 0.05, 0.1
+		double noise_rate = 0.015;	// 0.05, 0.1
 		generator.AddSaltPepperNoise(noise_rate);
-		generator.SaveNewImage(savepath, init_nameid + 7 * step);
+		generator.SaveNewImage(savepath, 17, init_nameid + 17 * step);
 	//	noise_rate = 0.03;
 	//	generator.AddSaltPepperNoise(noise_rate);
 	//	generator.SaveNewImage(savepath, init_nameid + 14 * step);
@@ -209,20 +261,23 @@ int main(int argc, char *argv[])
 		double logo_alpha = 0;
 		std::string logoname("../data/lena.jpg");
 		generator.AddLogoFileName(logoname, logo_alpha, kLogoUpRight);
-		generator.SaveNewImage(savepath, init_nameid + 8 * step);
+		generator.SaveNewImage(savepath, 18, init_nameid + 18 * step);
 		generator.AddLogoFileName(logoname, logo_alpha, kLogoCenter);
-		generator.SaveNewImage(savepath, init_nameid + 9 * step);
+		generator.SaveNewImage(savepath, 19, init_nameid + 19 * step);
 
 		double crop_rate = 0.15;	// 0.2, 0.5
 		generator.CropImage(crop_rate);
-		generator.SaveNewImage(savepath, init_nameid + 10 * step);
+		generator.SaveNewImage(savepath, 20, init_nameid + 20 * step);
 	//	crop_rate = 0.18;	// 0.2, 0.5
 	//	generator.CropImage(crop_rate);
 	//	generator.SaveNewImage(savepath, init_nameid + 18 * step);
 
 		//CopyFile((*iter), argv[2], init_nameid, ".jpg");
 	}
-*/
+	gettimeofday(&end, NULL);
+	time_use += (1000000 * (end.tv_sec - start.tv_sec) + end.tv_usec - start.tv_usec) / 1000.0;
+	printf("Using time %.3fs \n", time_use/ 1000.0);
+
 
 //	ImageGenerator generator;
 //	//std::string imagename("../data/lena.jpg");
